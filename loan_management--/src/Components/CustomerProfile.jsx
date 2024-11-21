@@ -16,41 +16,7 @@ function CustomerProfile() {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        const fetchCustomerData = async () => {
-         
-            try {
-                const response = await axios.get('http://127.0.0.1:8000/customers/profile', {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-                    },
-                });
-
-                if (response.ok) {
-                    
-                    const customer = data[0] || {};
-                    setCustomerId(customer.customer_id);
-                    setContact(customer.contact);
-                    setAddress(customer.address);
-                    setFirstName(customer.firstName);
-                    setMiddleName(customer.middleName);
-                    setLastName(customer.lastName);
-                    setIsEmployed(customer.isEmployed);
-                    setIncome(customer.income);
-                    setLoanLimit(customer.loanLimit);
-                    setError('');
-                } else {
-                  const errorData = await response.json();
-                  setError(`Failed to fetch customer data: ${errorData.message || 'Unknown error'}`);
-                }
-            } catch (err) {
-                console.error('Error fetching data:', error);
-                setError('An unexpected error occurred');
-            }
-        };
-
-        fetchCustomerData();
-    }, []);
+  
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -68,16 +34,16 @@ function CustomerProfile() {
         };
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/customers/profile/', {
-                method: 'PATCH',
+            const response = await axios.post('http://127.0.0.1:8000/customers/profile/', customerProfile,{
+              
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    Authorization: `Bearer ${localStorage.getItem('access_token')}`,
                 },
-                body: JSON.stringify(customerProfile),
+                
             });
 
-            if (response.ok) {
+            if (response.status === 200) {
                 const data = await response.json();
                 setMessage('Profile updated successfully');
                 setLoanLimit(data.loan_limit); // Update the loan limit

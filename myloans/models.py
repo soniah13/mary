@@ -4,8 +4,8 @@ from decimal import Decimal
 
 # Create your models here.
 class Customer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, default="customer")
-    customer_id = models.AutoField(primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    customer_id =models.AutoField(primary_key=True)
     contact = models.CharField(max_length=15)
     address = models.TextField()
     firstName = models.CharField(max_length=100, blank=True)
@@ -13,7 +13,7 @@ class Customer(models.Model):
     middleName = models.CharField(max_length=100, blank=True)
     isEmployed = models.BooleanField(default=False)
     income = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    guarantor = models.OneToOneField('Guarantor', on_delete=models.CASCADE,blank=True,null=True,  related_name='customer', default=None)
+    guarantor = models.OneToOneField('Guarantor', on_delete=models.CASCADE, blank=True, null=True,  related_name='customer')
 
 
         

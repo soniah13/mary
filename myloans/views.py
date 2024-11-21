@@ -13,10 +13,7 @@ from django.contrib import messages
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.decorators import login_required
-from .models import Customer
-from .models import Loan
-from .models import Payment
-from .models import Guarantor
+from .models import *
 from .serializers import GuarantorSerializer
 from .serializers import LoanSerializer,CustomerSerializer,PaymentSerializer
 from rest_framework.permissions import IsAdminUser
@@ -96,47 +93,26 @@ class userDashboardView(generics.DestroyAPIView):
 class customerProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-@api_view(['GET', 'PATCH'])
+
 @permission_classes([IsAuthenticated])
-def get_customer_profile(request):
-    try:
-        customer = request.user.customer
-    except AttributeError:
-        customer = None
-    if request.method == 'GET':
-        if customer:
-            serializer = CustomerSerializer(customer)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {'error': 'Customer profile not found for the user.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-    if request.method == 'PATCH':
-        if customer:
-            serializer = CustomerSerializer(customer, data=request.data, partial=True)  # partial=True allows partial update
-        else:
-            return Response(
-                {'error': 'Customer profile not found for the user.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        if serializer.is_valid():
-            serializer.save()  # Save the updated data
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
+class CustomerProfileView(APIView):
+    def post(self, request):
+        customer_id = request.data.get('customer_id')
+        try:
+            customer = Customer.objects.get(customer_id=customer_id)
+            # Update the existing customer
+            serializer = CustomerSerializer(customer, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-    #def get(self,request):
-        #gets the profile of the login customer
-        #customer = Customer.objects.get(user=request.user)
-        #serializer = CustomerSerializer(customer)
-        #return Response(serializer.data)
-    
-   
-
-
+        except Customer.DoesNotExist:
+            # Create a new customer if it doesn't exist
+            serializer = CustomerSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 # displays the customers loan
 
 @login_required(login_url='login_user') 

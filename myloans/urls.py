@@ -1,9 +1,8 @@
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
 from .views import CreateUserView,LoginView, CustomerListCreateView, CustomerDetailView,LoanListCreateView, LoanDetailView,PaymentView
-from .views import customer_loan_limit, get_customer_profile,admin_dashboard,userDashboardView
-from .views import (create_guarantor, list_guarantors, get_guarantor, update_guarantor,delete_guarantor,
-)
+from .views import *
+
 
 router = DefaultRouter()
 router.register(r'payments', PaymentView, basename='payment')
@@ -12,7 +11,7 @@ urlpatterns = [
     path('api/token/', LoginView.as_view(), name = 'logIn'),
     path('customers/', CustomerListCreateView.as_view(), name='customer-list-create'),
     path('customers/<int:pk>/', CustomerDetailView.as_view(), name='customer-detail'),
-    path('customers/profile/', get_customer_profile, name='customer_profile'),
+    path('customers/profile/', CustomerProfileView.as_view(), name='customer_profile'),
     path('loans/', LoanListCreateView.as_view(), name='loan-list-create'),
     path('loans/<int:pk>/', LoanDetailView.as_view(), name='loan-detail'),
     path('customers/<int:pk>/loan-limit/', customer_loan_limit, name='customer-loan-limit'),
