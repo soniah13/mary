@@ -89,13 +89,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'loans_db',
-        'USER':'Kim',
-        'PASSWORD':'remember',
+        'USER':'Imo',
+        'PASSWORD':'Parrot13',
         'HOST':'localhost',
-        'PORT':'5432',
+        'PORT':'5433',
     }
 }
 
+
+AUTH_USER_MODEL = 'myloans.CustomUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

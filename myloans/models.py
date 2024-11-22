@@ -1,11 +1,22 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from decimal import Decimal
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from django.core.validators import RegexValidator
+
 
 # Create your models here.
+class CustomUser(AbstractUser):
+    national_id = models.CharField(max_length=9, unique=True, blank=False, null=False, 
+                                   validators=[RegexValidator(r'^\d{9}$', 'National ID must be 9 digits long.')])
+
+    def __str__(self):
+        return f"{self.username} (National ID: {self.national_id})"
+
 class Customer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    customer_id =models.AutoField(primary_key=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE) #national ID
+    customer_id = models.CharField(max_length=9, unique=True, primary_key=True)
     contact = models.CharField(max_length=15)
     address = models.TextField()
     firstName = models.CharField(max_length=100, blank=True)
@@ -18,12 +29,14 @@ class Customer(models.Model):
 
         
     def __str__(self):
-        return f"Customer {self.firstName} "
+        return f"Customer {self.firstName} (National ID: {self.customer_id}) "
     
     def calculate_loan_limit(self):
         if self.isEmployed and self.income:
             return self.income * Decimal('0.10')  # 10% of salary
         return Decimal('0.00')
+    
+
 
 class Loan(models.Model):
     loan_id = models.AutoField(primary_key=True)
@@ -42,13 +55,21 @@ class Profile(models.Model):
         ('admin', 'Admin'),
     )
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="profile")
     role = models.CharField(max_length=10, choices=Choices, default='customer')
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"
     
-
+@receiver(post_save, sender=CustomUser)
+def create_customer_profile(sender, instance, created, **kwargs):
+    if created and not hasattr(instance, 'customer'):
+        Customer.objects.create(
+            user=instance, 
+            customer_id=instance.national_id,  # Use national ID as the customer ID
+            contact="", 
+            address=""
+        )
 
 class Payment(models.Model):
     loan = models.ForeignKey(Loan, on_delete=models.CASCADE)
@@ -72,7 +93,8 @@ class Guarantor(models.Model):
 
     def __str__(self):
         return f"Guarantor {self.name} "
-    
+
+
 
 
     

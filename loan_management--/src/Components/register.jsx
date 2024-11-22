@@ -4,12 +4,14 @@ import user from '../assets/user.jpg';
 import email from '../assets/email.jpg';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { FaIdBadge } from "react-icons/fa";
 
 
 function Register() {
     const [username, setUsername] = useState('');
     const [emailInput, setEmailInput] = useState('');
     const [passwordInput, setPasswordInput] = useState('');
+    const [nationalID, setNationalID] = useState('')
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
     const navigate = useNavigate();
@@ -22,6 +24,7 @@ function Register() {
                 username,
                 email: emailInput,
                 password: passwordInput,
+                national_id: nationalID,
             });
             setSuccessMessage('Registration successful! You can now log in.');
             setError(null); // Clear any previous error
@@ -32,7 +35,7 @@ function Register() {
         
     };
     const navigateToLogin = () => {
-        navigate('/login');
+        setTimeout(() => navigate('/login'), 2000);
     };
 
     return (
@@ -71,6 +74,17 @@ function Register() {
                     placeholder="Password"
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
+                    required
+                    className="w-full p-2 border border-gray-300 rounded"
+                />
+            </div>
+            <div className="input flex items-center space-x-2">
+                <FaIdBadge className="w-10 h-10 object-cover" />
+                <input
+                    type="text"
+                    placeholder="National ID"
+                    value={nationalID}
+                    onChange={(e) => setNationalID(e.target.value)}
                     required
                     className="w-full p-2 border border-gray-300 rounded"
                 />

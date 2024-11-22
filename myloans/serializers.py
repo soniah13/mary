@@ -1,17 +1,22 @@
-from django.contrib.auth.models import User
-from .models import Loan, Customer,Payment,Guarantor
+
+from .models import *
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 # User serializer for registration
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ["id", "username", "password"]
+        model = CustomUser
+        fields = ["id", "username", "password", "email", "national_id"]
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
+        user = CustomUser.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password'],
+            email=validated_data['email'],
+            national_id=validated_data['national_id']
+        )
         return user
 
 # Custom JWT serializer
@@ -27,14 +32,30 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class CustomerSerializer(serializers.ModelSerializer):
     loan_limit = serializers.SerializerMethodField()
+    national_id = serializers.CharField(source="user.national_id", read_only=True)
 
     class Meta:
         model = Customer
-        fields = '__all__'
-
+        fields = [
+            "national_id",
+            "customer_id",
+            "contact",
+            "address",
+            "firstName",
+            "lastName",
+            "middleName",
+            "isEmployed",
+            "income",
+            "loan_limit",
+        ]
         
     def get_loan_limit(self,obj):
         return obj.calculate_loan_limit()
+    
+    def validate_customer_id(self, value):
+        if not value.isdigit() or len(value) != 9:
+            raise serializers.ValidationError("Customer ID must be exactly 9 digits.")
+        return value
 
 class LoanSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,16 +63,7 @@ class LoanSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PaymentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model= Payment
-        fields = '__all__'
 
-
-class GuarantorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Guarantor
-        fields = '__all__'
 
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()

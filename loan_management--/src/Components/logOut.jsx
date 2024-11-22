@@ -10,7 +10,7 @@ const Logout = ({ onLogout }) => {
       await fetch('http://127.0.0.1:8000/api/logout', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ refresh: localStorage.getItem('refresh_token') }),

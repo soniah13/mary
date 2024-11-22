@@ -14,41 +14,9 @@ import Logout from './Components/logOut';
 import CustomerDashboard from './Components/customerDashboard';
 import ProtectedRoute from './Components/protected';
 
-function App() {
+function App({ profileData }) {
   // Global state to manage user data
-  const [userData, setUserData] = useState({
-    customerId: '',
-    contact: '',
-    address: '',
-    firstName: '',
-    lastName: '',
-    middleName: '',
-    isEmployed: false,
-    income: '',
-    guarantor: '',
-    loanLimit: '',
-    message: '',
-    error: '',
-  });
-
-  // Function to reset user data on logout
-  const resetUserData = () => {
-    setUserData({
-      customerId: '',
-      contact: '',
-      address: '',
-      firstName: '',
-      lastName: '',
-      middleName: '',
-      isEmployed: false,
-      income: '',
-      guarantor: '',
-      loanLimit: '',
-      message: '',
-      error: '',
-    });
-  };
-
+  
   return (
     <Router>
       <Navbar />
@@ -60,30 +28,24 @@ function App() {
           <Route path="/LoanForm" element={<LoanForm />} />
           <Route path="/Aboutus" element={<AboutUs />} />
           <Route path="/AllLoans" element={<AllLoans />} />
+          
+          {/* Static route for Customer Profile */}
           <Route 
             path="/CustomerProfile" 
-            element={
-              <CustomerProfile 
-                userData={userData} 
-                setUserData={setUserData} 
-              />
-            } 
+            element={<CustomerProfile profileData={profileData} />}
           />
+
+          {/* Dynamic route for Customer Profile based on customerID */}
           <Route 
-            path="/customer/:customerId" 
-            element={
-              <CustomerProfile 
-                userData={userData} 
-                setUserData={setUserData} 
-              />
-            } 
+            path="/customers/profile/" 
+            element={<CustomerProfile />}  // This will fetch the profile based on customerID
           />
+
           <Route 
             path="/logOut" 
-            element={
-              <Logout onLogout={resetUserData} /> 
-            } 
+            element={<Logout />} 
           />
+          
           <Route 
             path='/CustomerDashboard'
             element={
